@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Guide: HTTP Security Headers</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #24292e;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2, h3 {
+            border-bottom: 1px solid #eaecef;
+            padding-bottom: 0.3em;
+        }
+        h1 {
+            font-size: 2.2em;
+        }
+        code {
+            font-family: 'SF Mono', Monaco, Consolas, 'Liberation Mono', Courier, monospace;
+            background-color: #f6f8fa;
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+            font-size: 85%;
+        }
+        pre {
+            background-color: #f6f8fa;
+            border-radius: 3px;
+            padding: 16px;
+            overflow: auto;
+            line-height: 1.45;
+            border: 1px solid #ddd;
+        }
+        .note {
+            background-color: #fff5b1;
+            border-left: 4px solid #f9c513;
+            padding: 12px;
+            margin: 16px 0;
+            border-radius: 3px;
+        }
+        .warning {
+            background-color: #ffeef0;
+            border-left: 4px solid #d73a49;
+            padding: 12px;
+            margin: 16px 0;
+            border-radius: 3px;
+        }
+        .info-box {
+            background-color: #e6f3ff;
+            border-left: 4px solid #0366d6;
+            padding: 12px;
+            margin: 16px 0;
+            border-radius: 3px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 16px 0;
+        }
+        th, td {
+            border: 1px solid #dfe2e5;
+            padding: 8px 13px;
+        }
+        th {
+            background-color: #f6f8fa;
+        }
+        .header-card {
+            background-color: #f9f9f9;
+            border: 1px solid #e1e4e8;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 30px 0;
+        }
+        .header-title {
+            font-size: 1.5em;
+            color: #0366d6;
+            margin-bottom: 10px;
+        }
+        .directive-table td:first-child {
+            font-weight: bold;
+            font-family: monospace;
+        }
+        .platform-tabs {
+            display: flex;
+            margin: 20px 0;
+            border-bottom: 2px solid #e1e4e8;
+            flex-wrap: wrap;
+        }
+        .platform-tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-bottom: none;
+            border-radius: 4px 4px 0 0;
+            font-weight: 600;
+            background-color: #f6f8fa;
+            margin-right: 5px;
+        }
+        .platform-tab.active {
+            background-color: #0366d6;
+            color: white;
+            border-color: #0366d6;
+        }
+        .platform-content {
+            display: none;
+            padding: 20px;
+            border: 1px solid #e1e4e8;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+        }
+        .platform-content.active {
+            display: block;
+        }
+        .code-block {
+            background-color: #2d2d2d;
+            color: #f8f8f2;
+            padding: 16px;
+            border-radius: 4px;
+            font-family: 'SF Mono', Monaco, Consolas, monospace;
+            margin: 16px 0;
+            overflow-x: auto;
+        }
+        .security-score {
+            display: inline-block;
+            background-color: #28a745;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Complete Guide: HTTP Security Headers</h1>
+
+    <div class="info-box">
+        <strong>🛡️ What are HTTP Security Headers?</strong> HTTP security headers are a fundamental part of website security. They instruct browsers how to behave when handling your site's content, protecting against attacks like clickjacking, XSS, and ensuring secure connections.
+    </div>
+
+    <div class="platform-tabs">
+        <div class="platform-tab active" onclick="showPlatform('all-headers')">All Headers</div>
+        <div class="platform-tab" onclick="showPlatform('x-frame')">X-Frame-Options</div>
+        <div class="platform-tab" onclick="showPlatform('hsts')">HSTS</div>
+        <div class="platform-tab" onclick="showPlatform('referrer')">Referrer-Policy</div>
+        <div class="platform-tab" onclick="showPlatform('permissions')">Permissions-Policy</div>
+        <div class="platform-tab" onclick="showPlatform('csp')">CSP</div>
+    </div>
+
+    <!-- All Headers Overview -->
+    <div id="all-headers" class="platform-content active">
+        <h2>HTTP Security Headers Overview</h2>
+
+        <table>
+            <tr>
+                <th>Header</th>
+                <th>Protection</th>
+                <th>Security Level</th>
+                <th>Configuration Difficulty</th>
+            </tr>
+            <tr>
+                <td><strong>X-Frame-Options</strong></td>
+                <td>Clickjacking protection</td>
+                <td><span class="security-score">Essential</span></td>
+                <td>Easy</td>
+            </tr>
+            <tr>
+                <td><strong>Strict-Transport-Security (HSTS)</strong></td>
+                <td>SSL stripping attacks</td>
+                <td><span class="security-score">Essential</span></td>
+                <td>Easy</td>
+            </tr>
+            <tr>
+                <td><strong>Referrer-Policy</strong></td>
+                <td>Privacy, referrer leakage</td>
+                <td><span class="security-score">Recommended</span></td>
+                <td>Easy</td>
+            </tr>
+            <tr>
+                <td><strong>Permissions-Policy</strong></td>
+                <td>Browser feature control</td>
+                <td><span class="security-score">Recommended</span></td>
+                <td>Medium</td>
+            </tr>
+            <tr>
+                <td><strong>Content-Security-Policy (CSP)</strong></td>
+                <td>XSS, data injection</td>
+                <td><span class="security-score">Advanced</span></td>
+                <td>Complex</td>
+            </tr>
+        </table>
+
+        <h3>Complete Security Headers Configuration</h3>
+        <p>Here's a comprehensive security headers setup for maximum protection:</p>
+
+        <div class="code-block">
+# NGINX Complete Security Headers
+add_header X-Frame-Options "SAMEORIGIN" always;
+add_header X-Content-Type-Options "nosniff" always;
+add_header X-XSS-Protection "1; mode=block" always;
+add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
+add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';" always;
+        </div>
+
+        <div class="code-block">
+# Apache Complete Security Headers
+Header always set X-Frame-Options "SAMEORIGIN"
+Header always set X-Content-Type-Options "nosniff"
+Header always set X-XSS-Protection "1; mode=block"
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
+Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';"
+        </div>
+
+        <div class="code-block">
+# .htaccess Complete Security Headers
+&lt;IfModule mod_headers.c&gt;
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+    Header set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    Header set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';"
+&lt;/IfModule&gt;
+        </div>
+
+        <div class="note">
+            <strong>📌 Note:</strong> Always test security headers in a staging environment first. CSP in particular can break site functionality if not configured correctly.
+        </div>
+    </div>
+
+    <!-- X-Frame-Options Content -->
+    <div id="x-frame" class="platform-content">
+        <div class="header-card">
+            <div class="header-title">🖼️ X-Frame-Options</div>
+            
+            <div class="info-box">
+                <strong>What is X-Frame-Options?</strong> The X-Frame-Options HTTP header tells the browser whether your site can be displayed in <code>&lt;frame&gt;</code>, <code>&lt;iframe&gt;</code>, or <code>&lt;embed&gt;</code> elements. This prevents clickjacking attacks where malicious sites load your pages in invisible frames to trick users.
+            </div>
+
+            <h3>Directives</h3>
+            <table class="directive-table">
+                <tr>
+                    <th>Directive</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td>deny</td>
+                    <td>The page cannot be displayed in any frame, regardless of the requesting site.</td>
+                </tr>
+                <tr>
+                    <td>sameorigin</td>
+                    <td>The page can only be displayed if all parent frames are on the same domain.</td>
+                </tr>
+                <tr>
+                    <td>allow-from https://domain.com</td>
+                    <td>Allows loading only from specified URL (⚠️ Deprecated in modern browsers).</td>
+                </tr>
+            </table>
+
+            <div class="note">
+                <strong>⚠️ Deprecation Warning:</strong> The <code>allow-from</code> directive is no longer supported in many browsers. For modern sites, use <code>Content-Security-Policy</code> with the <code>frame-ancestors</code> directive instead.
+            </div>
+
+            <h3>CSP Alternative for Frame Control</h3>
+            <div class="code-block">
+# Allow framing only from same origin and specific domains
+add_header Content-Security-Policy "frame-ancestors 'self' https://domain1.com https://domain2.com";
+            </div>
+
+            <h3>NGINX Configuration</h3>
+            <div class="code-block">
+# In nginx.conf or site config
+add_header X-Frame-Options SAMEORIGIN always;
+
+# Or for deny
+add_header X-Frame-Options DENY always;
+            </div>
+
+            <h3>Apache Configuration</h3>
+            <div class="code-block">
+# In httpd.conf or virtual host
+Header always set X-Frame-Options "SAMEORIGIN"
+
+# Or for deny
+Header always set X-Frame-Options "DENY"
+            </div>
+
+            <h3>.htaccess Configuration</h3>
+            <div class="code-block">
+&lt;IfModule mod_headers.c&gt;
+    Header set X-Frame-Options "SAMEORIGIN"
+&lt;/IfModule&gt;
+            </div>
+
+            <h3>PHP Configuration</h3>
+            <div class="code-block">
+&lt;?php
+// Set X-Frame-Options header in PHP
+header("X-Frame-Options: SAMEORIGIN");
+?&gt;
+            </div>
+
+            <h3>Testing Your Configuration</h3>
+            <div class="code-block">
+# Check headers using curl
+curl -I https://yourdomain.com | grep -i x-frame
+
+# Or visit your site and check Developer Tools → Network tab → Response Headers
+            </div>
+        </div>
+    </div>
+
+    <!-- HSTS Content -->
+    <div id="hsts" class="platform-content">
+        <div class="header-card">
+            <div class="header-title">🔒 Strict-Transport-Security (HSTS)</div>
+            
+            <div class="info-box">
+                <strong>What is HSTS?</strong> Strict-Transport-Security tells the browser to always load your site via HTTPS, never HTTP. This protects against SSL stripping attacks where attackers force a downgrade to insecure HTTP.
+            </div>
+
+            <div class="warning">
+                <strong>⚠️ Prerequisite:</strong> HSTS will only work if your site is accessible via HTTPS and the SSL certificate is installed without errors. The site must never load via HTTP once HSTS is enabled.
+            </div>
+
+            <h3>Directives</h3>
+            <table class="directive-table">
+                <tr>
+                    <th>Directive</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td>max-age=SECONDS</td>
+                    <td>Tells the browser how long (in seconds) to remember that the site should only be accessed via HTTPS. <code>31536000</code> = 1 year.</td>
+                </tr>
+                <tr>
+                    <td>includeSubDomains</td>
+                    <td>Applies HSTS not only to the main domain but to all subdomains as well.</td>
+                </tr>
+                <tr>
+                    <td>preload</td>
+                    <td>Indicates that the site has been added to the HSTS preload list (hardcoded into browsers).</td>
+                </tr>
+            </table>
+
+            <h3>HSTS Preload</h3>
+            <div class="note">
+                <strong>🔐 Preload List:</strong> Sites can be added to <a href="https://hstspreload.org/" target="_blank">hstspreload.org</a> to be hardcoded into browsers. Once added, your site will <strong>never</strong> be accessible via HTTP, even on first visit.
+            </div>
+
+            <h3>NGINX Configuration</h3>
+            <div class="code-block">
+# Basic HSTS (1 year, main domain only)
+add_header Strict-Transport-Security "max-age=31536000" always;
+
+# HSTS with subdomains
+add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+
+# HSTS with preload (for submission to preload list)
+add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+            </div>
+
+            <h3>Apache Configuration</h3>
+            <div class="code-block">
+# Basic HSTS
+Header always set Strict-Transport-Security "max-age=31536000"
+
+# With subdomains
+Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+# With preload
+Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+            </div>
+
+            <h3>.htaccess Configuration</h3>
+            <div class="code-block">
+&lt;IfModule mod_headers.c&gt;
+    Header set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+&lt;/IfModule&gt;
+            </div>
+
+            <h3>PHP Configuration</h3>
+            <div class="code-block">
+&lt;?php
+// Set HSTS header in PHP
+header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
+?&gt;
+            </div>
+
+            <h3>Testing HSTS</h3>
+            <div class="code-block">
+# Check HSTS header
+curl -I https://yourdomain.com | grep -i strict
+
+# Visit chrome://net-internals/#hsts in Chrome to query HSTS status
+            </div>
+        </div>
+    </div>
+
+    <!-- Referrer-Policy Content -->
+    <div id="referrer" class="platform-content">
+        <div class="header-card">
+            <div class="header-title">🔗 Referrer-Policy</div>
+            
+            <div class="info-box">
+                <strong>What is Referrer-Policy?</strong> The Referrer-Policy header controls how much referrer information (the previous page URL) is sent when users navigate from your site to other sites. This protects user privacy and prevents sensitive data leakage.
+            </div>
+
+            <h3>Directives</h3>
+            <table class="directive-table">
+                <tr>
+                    <th>Directive</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td>no-referrer</td>
+                    <td>Never send referrer information with requests.</td>
+                </tr>
+                <tr>
+                    <td>no-referrer-when-downgrade</td>
+                    <td>Send referrer when staying on same protocol (HTTPS→HTTPS or HTTP→HTTP). <strong>This is the browser default.</strong></td>
+                </tr>
+                <tr>
+                    <td>origin</td>
+                    <td>Send only the origin (protocol + domain), not the full path.</td>
+                </tr>
+                <tr>
+                    <td>origin-when-cross-origin</td>
+                    <td>Send full referrer for same origin, only origin for cross-origin requests.</td>
+                </tr>
+                <tr>
+                    <td>same-origin</td>
+                    <td>Send referrer only for same-origin requests.</td>
+                </tr>
+                <tr>
+                    <td>strict-origin</td>
+                    <td>Send origin only when protocol stays the same (HTTPS→HTTPS).</td>
+                </tr>
+                <tr>
+                    <td>strict-origin-when-cross-origin</td>
+                    <td>Send full referrer for same-origin, origin for cross-origin HTTPS→HTTPS, nothing for HTTPS→HTTP.</td>
+                </tr>
+                <tr>
+                    <td>unsafe-url</td>
+                    <td>Send full referrer always (most permissive, least private).</td>
+                </tr>
+            </table>
+
+            <h3>Recommended Policy</h3>
+            <div class="note">
+                <strong>✅ Best Practice:</strong> <code>strict-origin-when-cross-origin</code> provides the best balance of functionality and privacy.
+            </div>
+
+            <h3>NGINX Configuration</h3>
+            <div class="code-block">
+# Recommended setting
+add_header Referrer-Policy 'strict-origin-when-cross-origin' always;
+
+# Other options
+add_header Referrer-Policy 'no-referrer-when-downgrade' always;
+add_header Referrer-Policy 'same-origin' always;
+            </div>
+
+            <h3>Apache Configuration</h3>
+            <div class="code-block">
+Header set Referrer-Policy "strict-origin-when-cross-origin"
+Header set Referrer-Policy "no-referrer-when-downgrade"
+            </div>
+
+            <h3>.htaccess Configuration</h3>
+            <div class="code-block">
+&lt;IfModule mod_headers.c&gt;
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+&lt;/IfModule&gt;
+            </div>
+
+            <h3>PHP Configuration</h3>
+            <div class="code-block">
+&lt;?php
+header("Referrer-Policy: strict-origin-when-cross-origin");
+?&gt;
+            </div>
+        </div>
+    </div>
+
+    <!-- Permissions-Policy Content -->
+    <div id="permissions" class="platform-content">
+        <div class="header-card">
+            <div class="header-title">📱 Permissions-Policy</div>
+            
+            <div class="info-box">
+                <strong>What is Permissions-Policy?</strong> Formerly known as Feature-Policy, this header controls which browser features and APIs can be used by your site. This improves privacy and security by disabling unnecessary features like camera, microphone, and geolocation.
+            </div>
+
+            <h3>Key Directives</h3>
+            <table>
+                <tr>
+                    <th>Directive</th>
+                    <th>Controls access to</th>
+                </tr>
+                <tr>
+                    <td><code>accelerometer</code></td>
+                    <td>Device accelerometer (motion sensors)</td>
+                </tr>
+                <tr>
+                    <td><code>autoplay</code></td>
+                    <td>Automatic video/audio playback</td>
+                </tr>
+                <tr>
+                    <td><code>camera</code></td>
+                    <td>Device camera</td>
+                </tr>
+                <tr>
+                    <td><code>fullscreen</code></td>
+                    <td>Fullscreen mode</td>
+                </tr>
+                <tr>
+                    <td><code>geolocation</code></td>
+                    <td>GPS/location services</td>
+                </tr>
+                <tr>
+                    <td><code>gyroscope</code></td>
+                    <td>Device gyroscope</td>
+                </tr>
+                <tr>
+                    <td><code>magnetometer</code></td>
+                    <td>Device compass</td>
+                </tr>
+                <tr>
+                    <td><code>microphone</code></td>
+                    <td>Device microphone</td>
+                </tr>
+                <tr>
+                    <td><code>payment</code></td>
+                    <td>Payment Request API</td>
+                </tr>
+                <tr>
+                    <td><code>usb</code></td>
+                    <td>USB devices</td>
+                </tr>
+            </table>
+
+            <h3>Syntax Examples</h3>
+            <div class="code-block">
+# Disable specific features for all origins
+Permissions-Policy: geolocation=(), microphone=(), camera=()
+
+# Allow only for same origin
+Permissions-Policy: geolocation=(self)
+
+# Allow for specific domains
+Permissions-Policy: geolocation=(self "https://trusted.com")
+
+# Allow all (default)
+Permissions-Policy: geolocation=*
+            </div>
+
+            <h3>NGINX Configuration</h3>
+            <div class="code-block">
+# Disable camera, microphone, and geolocation completely
+add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
+
+# Disable multiple features
+add_header Permissions-Policy "accelerometer=(), autoplay=(), camera=(), document-domain=(), encrypted-media=(), fullscreen=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), sync-xhr=(), usb=(), web-share=(), xr-spatial-tracking=()" always;
+            </div>
+
+            <h3>Apache Configuration</h3>
+            <div class="code-block">
+Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+            </div>
+
+            <h3>.htaccess Configuration</h3>
+            <div class="code-block">
+&lt;IfModule mod_headers.c&gt;
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+&lt;/IfModule&gt;
+            </div>
+        </div>
+    </div>
+
+    <!-- CSP Content -->
+    <div id="csp" class="platform-content">
+        <div class="header-card">
+            <div class="header-title">🛡️ Content-Security-Policy (CSP)</div>
+            
+            <div class="info-box">
+                <strong>What is CSP?</strong> Content-Security-Policy is a powerful security header that helps prevent cross-site scripting (XSS), clickjacking, and other code injection attacks. It allows you to create a whitelist of trusted sources for content like scripts, styles, images, and fonts.
+            </div>
+
+            <h3>Key Directives</h3>
+            <table>
+                <tr>
+                    <th>Directive</th>
+                    <th>Controls</th>
+                </tr>
+                <tr>
+                    <td><code>default-src</code></td>
+                    <td>Fallback for other fetch directives</td>
+                </tr>
+                <tr>
+                    <td><code>script-src</code></td>
+                    <td>JavaScript sources</td>
+                </tr>
+                <tr>
+                    <td><code>style-src</code></td>
+                    <td>CSS stylesheet sources</td>
+                </tr>
+                <tr>
+                    <td><code>img-src</code></td>
+                    <td>Image sources</td>
+                </tr>
+                <tr>
+                    <td><code>font-src</code></td>
+                    <td>Font sources</td>
+                </tr>
+                <tr>
+                    <td><code>connect-src</code></td>
+                    <td>AJAX, WebSocket, EventSource</td>
+                </tr>
+                <tr>
+                    <td><code>media-src</code></td>
+                    <td>Audio/video sources</td>
+                </tr>
+                <tr>
+                    <td><code>frame-src</code></td>
+                    <td>Frame/iframe sources</td>
+                </tr>
+                <tr>
+                    <td><code>object-src</code></td>
+                    <td>Plugin sources (Flash, Java)</td>
+                </tr>
+                <tr>
+                    <td><code>frame-ancestors</code></td>
+                    <td>Who can embed the page (CSP alternative to X-Frame-Options)</td>
+                </tr>
+            </table>
+
+            <h3>Source Values</h3>
+            <table>
+                <tr>
+                    <th>Value</th>
+                    <th>Meaning</th>
+                </tr>
+                <tr>
+                    <td><code>'none'</code></td>
+                    <td>Block everything</td>
+                </tr>
+                <tr>
+                    <td><code>'self'</code></td>
+                    <td>Allow from same origin</td>
+                </tr>
+                <tr>
+                    <td><code>'unsafe-inline'</code></td>
+                    <td>Allow inline scripts/styles (avoid if possible)</td>
+                </tr>
+                <tr>
+                    <td><code>'unsafe-eval'</code></td>
+                    <td>Allow eval() (avoid if possible)</td>
+                </tr>
+                <tr>
+                    <td><code>https://domain.com</code></td>
+                    <td>Allow from specific domain</td>
+                </tr>
+                <tr>
+                    <td><code>*.domain.com</code></td>
+                    <td>Allow from domain and subdomains</td>
+                </tr>
+                <tr>
+                    <td><code>https:</code></td>
+                    <td>Allow only over HTTPS</td>
+                </tr>
+                <tr>
+                    <td><code>'nonce-abc123'</code></td>
+                    <td>Allow specific inline scripts with matching nonce</td>
+                </tr>
+                <tr>
+                    <td><code>'sha256-abc123'</code></td>
+                    <td>Allow scripts matching hash</td>
+                </tr>
+            </table>
+
+            <h3>CSP Examples</h3>
+
+            <h4>Basic CSP (Self Only)</h4>
+            <div class="code-block">
+Content-Security-Policy: default-src 'self';
+# Only allows content from your own domain
+            </div>
+
+            <h4>Typical WordPress CSP</h4>
+            <div class="code-block">
+Content-Security-Policy: 
+    default-src 'self';
+    script-src 'self' 'unsafe-inline' 'unsafe-eval' https://ajax.googleapis.com;
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+    font-src 'self' https://fonts.gstatic.com;
+    img-src 'self' data: https:
+            </div>
+
+            <h4>Strict CSP (Recommended)</h4>
+            <div class="code-block">
+Content-Security-Policy: 
+    default-src 'none';
+    script-src 'self';
+    style-src 'self';
+    img-src 'self' data:;
+    font-src 'self';
+    connect-src 'self';
+    frame-ancestors 'self';
+    form-action 'self';
+            </div>
+
+            <h4>With Nonce for Inline Scripts</h4>
+            <div class="code-block">
+# Header
+Content-Security-Policy: script-src 'nonce-r4nd0m'
+
+# HTML
+&lt;script nonce="r4nd0m"&gt;
+    console.log('This script will execute');
+&lt;/script&gt;
+            </div>
+
+            <h3>NGINX CSP Configuration</h3>
+            <div class="code-block">
+# Basic CSP
+add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';" always;
+
+# Advanced CSP
+add_header Content-Security-Policy "
+    default-src 'none';
+    script-src 'self' https://www.google-analytics.com;
+    style-src 'self' 'unsafe-inline';
+    img-src 'self' data: https:;
+    font-src 'self';
+    connect-src 'self';
+    frame-ancestors 'self';
+    form-action 'self';
+    base-uri 'self';
+" always;
+            </div>
+
+            <h3>Apache CSP Configuration</h3>
+            <div class="code-block">
+Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
+            </div>
+
+            <h3>.htaccess CSP Configuration</h3>
+            <div class="code-block">
+&lt;IfModule mod_headers.c&gt;
+    Header set Content-Security-Policy "default-src 'self'"
+&lt;/IfModule&gt;
+            </div>
+
+            <h3>Testing CSP</h3>
+            <div class="note">
+                <strong>🧪 CSP Testing Mode:</strong> Use <code>Content-Security-Policy-Report-Only</code> to test policies without blocking:
+            </div>
+
+            <div class="code-block">
+# Test only (logs violations but doesn't block)
+add_header Content-Security-Policy-Report-Only "default-src 'self'; report-uri /csp-report-endpoint/" always;
+            </div>
+
+            <h3>CSP Report URI</h3>
+            <div class="code-block">
+# Send violation reports to an endpoint
+Content-Security-Policy: default-src 'self'; report-uri https://yourdomain.com/csp-report
+
+# Or use a service like https://report-uri.com/
+            </div>
+        </div>
+    </div>
+
+    <h2>Security Headers Checker Tools</h2>
+
+    <table>
+        <tr>
+            <th>Tool</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td><a href="https://securityheaders.com/" target="_blank">securityheaders.com</a></td>
+            <td>Analyzes your site's security headers and gives a grade (A+, A, etc.)</td>
+        </tr>
+        <tr>
+            <td><a href="https://csp-evaluator.withgoogle.com/" target="_blank">Google CSP Evaluator</a></td>
+            <td>Evaluates your CSP policy for common mistakes</td>
+        </tr>
+        <tr>
+            <td><a href="https://hstspreload.org/" target="_blank">HSTS Preload</a></td>
+            <td>Check HSTS status and submit to preload list</td>
+        </tr>
+        <tr>
+            <td>Browser DevTools</td>
+            <td>Network tab → Response Headers shows all headers</td>
+        </tr>
+    </table>
+
+    <h2>Quick Reference: All Headers</h2>
+
+    <table>
+        <tr>
+            <th>Header</th>
+            <th>Recommended Value</th>
+        </tr>
+        <tr>
+            <td>X-Frame-Options</td>
+            <td><code>SAMEORIGIN</code></td>
+        </tr>
+        <tr>
+            <td>Strict-Transport-Security</td>
+            <td><code>max-age=31536000; includeSubDomains; preload</code></td>
+        </tr>
+        <tr>
+            <td>X-Content-Type-Options</td>
+            <td><code>nosniff</code></td>
+        </tr>
+        <tr>
+            <td>X-XSS-Protection</td>
+            <td><code>1; mode=block</code></td>
+        </tr>
+        <tr>
+            <td>Referrer-Policy</td>
+            <td><code>strict-origin-when-cross-origin</code></td>
+        </tr>
+        <tr>
+            <td>Permissions-Policy</td>
+            <td><code>geolocation=(), microphone=(), camera=()</code></td>
+        </tr>
+        <tr>
+            <td>Content-Security-Policy</td>
+            <td><code>default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'self';</code></td>
+        </tr>
+    </table>
+
+    <div class="warning">
+        <strong>⚠️ Implementation Warning:</strong> 
+        <ul>
+            <li>Always test headers in a development environment first</li>
+            <li>Use CSP report-only mode initially to identify issues</li>
+            <li>Monitor your site after implementing headers for any functionality breaks</li>
+            <li>HSTS with preload is permanent - be absolutely sure before enabling</li>
+            <li>Document your header configuration for future reference</li>
+        </ul>
+    </div>
+
+    <div class="note">
+        <strong>📚 Additional Resources:</strong>
+        <ul>
+            <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers" target="_blank">MDN HTTP Headers Documentation</a></li>
+            <li><a href="https://owasp.org/www-project-secure-headers/" target="_blank">OWASP Secure Headers Project</a></li>
+            <li><a href="https://csp.withgoogle.com/docs/index.html" target="_blank">Google CSP Guide</a></li>
+        </ul>
+    </div>
+
+    <script>
+        function showPlatform(platform) {
+            document.querySelectorAll('.platform-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.querySelectorAll('.platform-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(platform).classList.add('active');
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>
